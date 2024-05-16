@@ -5,8 +5,6 @@
 #include "implot.h"
 #include "implot_internal.h"
 
-#include "util.h"
-
 extern "C" {
 #include "mc_traj.h"
 }

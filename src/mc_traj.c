@@ -1,11 +1,16 @@
 #include "mc_traj.h"
-#include "util.h"
 #include <math.h>
+
+
+static float fclampf(float x, float lo, float hi)
+{
+    return fminf(fmaxf(x, lo), hi);
+}
 
 
 void mc_traj_step(struct mc_traj *t, float target, float dt)
 {
-    target = clampf(target, t->pos_min, t->pos_max);
+    target = fclampf(target, t->pos_min, t->pos_max);
     float s = target - t->pos;
 
     // How fast can we go and still brake?
@@ -14,16 +19,16 @@ void mc_traj_step(struct mc_traj *t, float target, float dt)
 
     // Apply velocity and acceleration limits
     //
-    v = clampf(v, t->vel_min, t->vel_max);
+    v = fclampf(v, t->vel_min, t->vel_max);
 
     if (t->vel >= 0)
-        v = clampf(v, t->vel - t->dec_max * dt, t->vel + t->acc_max * dt);
+        v = fclampf(v, t->vel - t->dec_max * dt, t->vel + t->acc_max * dt);
     else
-        v = clampf(v, t->vel - t->acc_max * dt, t->vel + t->dec_max * dt);
+        v = fclampf(v, t->vel - t->acc_max * dt, t->vel + t->dec_max * dt);
 
     // Update output values
     //
-    bool pos_reached = fabsf(s) < maxf(-t->vel_min, t->vel_max) * dt;
+    bool pos_reached = fabsf(s) < fmaxf(-t->vel_min, t->vel_max) * dt;
     bool vel_reached = fabsf(v) < t->dec_max * dt;
 
     t->at_target = pos_reached && vel_reached;
